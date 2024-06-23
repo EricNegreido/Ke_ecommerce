@@ -17,17 +17,9 @@ class CartController extends Controller
     {   
         $cart = []; // caso donde usuario no esta autenticado o no tiene articulo
         if(Auth::check()){
-            $cart = Cart::where('user_id' == Auth::id())->get();
+            $cart = Cart::where('user_id', Auth::id())->get();
         }
         return view('cart.index', compact('cart'));
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        
     }
 
     /**
@@ -44,27 +36,12 @@ class CartController extends Controller
             $cart->user_id = Auth::id();
             $cart->product_id = $validated['id'];
             $cart->quantity =  $validated['quantity'];
+            $cart->save();
+            return "Se agrego un producto";  
         }
-        $cart->save();
+    return "No se pudo agregar el producto";  
 
-        return "Se agrego un producto";  
 
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Cart $cart)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Cart $cart)
-    {
-        //
     }
 
     /**
@@ -72,14 +49,24 @@ class CartController extends Controller
      */
     public function update(Request $request, Cart $cart)
     {
-        //
+        $validated = $request->validate([
+            'id' => 'required|exists:products,id',
+            'quantity' => 'required|integer|min:1'
+        ]);
+
+        $cart->quantity =  $validated['quantity'];
+        $cart->update();
+
+        return "Se Actualizo el Carrito"; 
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Cart $cart)
+    public function destroy(cart $cart)
     {
-        //
+        $cart->delete();
+
+        return "Se Elimino el Carrito"; 
     }
 }
